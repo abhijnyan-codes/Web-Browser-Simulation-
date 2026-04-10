@@ -9,22 +9,91 @@
 <body>
 
 <div class="browser">
-
     <!-- Tabs -->
-    <div class="tabs" id="tabs"></div>
-
+    <div class="tabs" id="tabs">
+        <div class="add-tab" id="addTab">+</div>
+    </div>
+ 
     <!-- Navbar -->
     <div class="navbar">
-        <button id="back" class="nav-btn">←</button>
-        <button id="forward" class="nav-btn">→</button>
-        <button id="refresh" class="nav-btn">⟳</button>
-
-        <input type="text" id="addressBar" class="address-bar" placeholder="Enter URL...">
+        <button id="back" class="nav-btn" title="Back">&#8592;</button>
+        <button id="forward" class="nav-btn" title="Forward">&#8594;</button>
+        <button id="refresh" class="nav-btn" title="Refresh">&#10227;</button>
+        <div class="addr-wrap">
+            <span class="addr-icon">&#128274;</span>
+            <input type="text" id="addressBar" class="address-bar" placeholder="Search or enter address..." />
+        </div>
     </div>
-
+ 
     <!-- Content -->
-    <div class="content" id="content"></div>
-
+    <div class="content" id="content">
+        <div class="new-tab-bg"></div>
+        <div class="new-tab-overlay"></div>
+ 
+        <!-- New Tab UI -->
+        <div class="center-layout" id="centerLayout">
+            <div style="width:100%">
+                <div class="shortcuts-header">
+                    <span class="shortcuts-title">Favorites</span>
+                    <button class="edit-btn" id="editBtn">&#9998; Edit</button>
+                </div>
+                <div class="shortcuts" id="shortcuts"></div>
+            </div>
+            <div class="main-search">
+                <span class="search-icon">&#128269;</span>
+                <input type="text" id="searchInput" placeholder="Search Google or type a URL..." />
+            </div>
+        </div>
+ 
+        <!-- Bottom Dashboard -->
+        <div class="bottom-dashboard" id="bottomDashboard">
+            <div class="glass-panel">
+                <div class="time-display">
+                    <span id="clockTime">--:--</span>
+                    <div class="time-meta">
+                        <span id="clockAmpm">--</span>
+                        <span id="clockDate">Loading...</span>
+                    </div>
+                </div>
+                <div class="mini-weather">
+                    <span>&#127780;&#65039;</span>
+                    <span>28&deg;C</span>
+                    <span style="color:rgba(255,255,255,0.5)">Chennai</span>
+                </div>
+            </div>
+            <div class="glass-panel focus-panel">
+                <div class="panel-tag">Daily Focus</div>
+                <div class="panel-content">
+                    <p id="quote">"Small steps lead to big results."</p>
+                    <button class="action-btn" id="newQuoteBtn">New Quote</button>
+                </div>
+            </div>
+        </div>
+ 
+        <span class="photo-credit">Photo by Zolt&aacute;n K&#337;m&iacute;ves &bull; Unsplash</span>
+ 
+        <!-- Page View -->
+        <div class="page-content" id="pageContent">
+            <span class="url-badge" id="urlBadge"></span>
+            <h1 id="pageTitle"></h1>
+            <p id="pageDesc"></p>
+            <p id="pageTime" style="color:#666;font-size:12px;margin-top:24px;"></p>
+        </div>
+    </div>
+</div>
+ 
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+        <h3 id="modalTitle">Add Shortcut</h3>
+        <input type="text" id="modalIcon" placeholder="Icon (emoji)" maxlength="4" />
+        <input type="text" id="modalName" placeholder="Name" />
+        <input type="text" id="modalUrl"  placeholder="URL (e.g. https://example.com)" />
+        <div class="modal-actions">
+            <button id="modalCancel">Cancel</button>
+            <button id="modalSave">Save</button>
+        </div>
+    </div>
 </div>
 
 <script src="index.js"></script>
