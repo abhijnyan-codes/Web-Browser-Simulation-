@@ -19,6 +19,7 @@
         <button id="back" class="nav-btn" title="Back">&#8592;</button>
         <button id="forward" class="nav-btn" title="Forward">&#8594;</button>
         <button id="refresh" class="nav-btn" title="Refresh">&#10227;</button>
+        <button id="historyBtn" class="nav-btn" title="History">🕘</button>
         <div class="addr-wrap">
             <span class="addr-icon">&#128274;</span>
             <input type="text" id="addressBar" class="address-bar" placeholder="Search or enter address..." />
@@ -94,6 +95,22 @@
             <button id="modalSave">Save</button>
         </div>
     </div>
+</div>
+<div id="historyPanel" class="history-panel">
+
+    <div class="history-header">
+
+    <h3 class="history-title">History</h3>
+
+    <button id="clearHistoryBtn"
+            class="clear-history-btn">
+        Clear
+    </button>
+
+</div>
+
+    <ul id="historyList" class="history-list"></ul>
+
 </div>
 
 <script src="index.js"></script>
