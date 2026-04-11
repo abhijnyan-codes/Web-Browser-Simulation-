@@ -1,414 +1,182 @@
-# 🌐 Console-Based Web Browser Simulation (C++)
+# 🌐 Web-Based Browser Simulation (C++ Backend + JS Frontend)
 
-A console-based C++ application that simulates the internal working of a web browser using Object-Oriented Programming (OOP) principles. Developed as part of the **OOP coursework at NIT Silchar (CSE Department)**.
+A full-stack web-based browser simulation that mimics the internal working of a real browser using a **C++ backend server** and a **JavaScript frontend UI**.
+
+Developed as part of **OOP coursework at NIT Silchar**, this project evolved from a console-based system into a fully interactive web application.
 
 ---
 
 ## 📌 Project Overview
 
-This project demonstrates how a real web browser operates internally — including tab management, page rendering, and navigation history — without using the internet.
+This project demonstrates how a web browser works internally:
 
-All content is simulated within the console environment.
+* Tab management
+* Back/forward navigation using stacks
+* Page rendering simulation
+* Frontend-backend communication
+* Real-time weather integration
 
-🎯 **Key Objective:**
-To apply core OOP concepts in a clean, modular, and scalable design.
+The frontend communicates with the C++ backend using HTTP requests, making it a **hybrid system combining systems programming and web development**.
 
 ---
 
 ## 🚀 Key Features
 
 * 🗂️ Multi-tab browsing system
-* 🔄 Back and forward navigation using stacks
+* 🔄 Back and forward navigation (stack-based logic in C++)
 * 🌐 Dynamic page type handling (HTML, Image, Video)
-* 🧠 Polymorphic rendering system
-* 🖥️ Console-based interactive interface
-* 🎨 Optional frontend simulation (HTML)
+* 🧠 Object-Oriented backend design
+* 💻 Interactive web UI (HTML, CSS, JavaScript)
+* 🌦️ Real-time weather using geolocation API
+* 📍 Automatic location detection
+* 🎨 Dynamic weather icons based on conditions
+* ⭐ Custom shortcuts system
+* 🕘 History panel with live updates
 
 ---
 
-## 👥 Team Contributions
-
-| Member   | Role              | Responsibilities                                 |
-| -------- | ----------------- | ------------------------------------------------ |
-| Person 1 | Browser System    | `Browser.h/cpp`, `main.cpp`, frontend simulation |
-| Person 2 | Navigation System | `Tab`, `History` (stack-based navigation)        |
-| Person 3 | Page System       | `WebPage` hierarchy (HTML, Image, Video)         |
-| Person 4 | Integration       | Makefile, README, report, demo                   |
-
----
-
-## 🏗️ System Architecture
+## 🏗️ Architecture
 
 ```
-Browser
-├── manages → Tab[]
-│   ├── contains → WebPage* (polymorphic)
-│   │   ├── HTMLPage
-│   │   ├── ImagePage
-│   │   └── VideoPage
-│   └── uses → History
-│       ├── backStack
-│       └── forwardStack
+Frontend (HTML/CSS/JS)
+        ↓ fetch()
+C++ Backend Server (httplib)
+        ↓
+Tab + History + Page System
 ```
 
 ---
 
-## 🧩 OOP Concepts Implemented
+## 🧩 OOP Concepts Implemented (Backend)
 
-| Concept           | Implementation                              |
-| ----------------- | ------------------------------------------- |
-| **Encapsulation** | Private data members with controlled access |
-| **Abstraction**   | User interacts via simple commands          |
-| **Inheritance**   | Derived classes from `WebPage`              |
-| **Polymorphism**  | Runtime binding using `render()`            |
-| **Composition**   | Browser → Tabs → WebPages + History         |
+| Concept       | Implementation                              |
+| ------------- | ------------------------------------------- |
+| Encapsulation | Private data members with controlled access |
+| Abstraction   | API endpoints used by frontend              |
+| Inheritance   | WebPage → HTMLPage, ImagePage, VideoPage    |
+| Polymorphism  | Runtime binding using render()              |
+| Composition   | Browser → Tabs → History → Pages            |
 
 ---
 
 ## 📁 Project Structure
 
 ```
-web-browser-simulation-cpp/
-├── src/
-│   ├── WebPage.h / .cpp
-│   ├── HTMLPage.h / .cpp
-│   ├── ImagePage.h / .cpp
-│   ├── VideoPage.h / .cpp
-│   ├── History.h / .cpp
-│   ├── Tab.h / .cpp
-│   ├── Browser.h / .cpp
-│   └── main.cpp
-├── frontend/
-│   └── index.html
-├── docs/
-│   └── ProjectReport.pdf
-├── Makefile
-└── README.md
+project-root/
+├── Backend/
+│   ├── server.cpp
+│   ├── Browser.cpp / .h
+│   ├── Tab.cpp / .h
+│   ├── History.cpp / .h
+│   ├── WebPage.cpp / .h
+│   └── ...
+│
+├── Frontend/
+│   ├── index.html
+│   ├── style.css
+│   ├── index.js
+│
+├── README.md
+└── .gitignore
 ```
 
 ---
 
-## ⚙️ Compilation & Execution
+## ⚙️ How to Run
 
-### 🔹 Using Makefile
+### 🔹 Step 1: Start Backend (C++ Server)
 
 ```bash
-make
-./browser
-```
-
-### 🔹 Manual Compilation
-
-```bash
-g++ -std=c++11 -o browser src/main.cpp src/Browser.cpp src/Tab.cpp src/History.cpp \
-src/WebPage.cpp src/HTMLPage.cpp src/ImagePage.cpp src/VideoPage.cpp
-
-./browser
+cd Backend
+g++ server.cpp -o server -std=gnu++17 -lws2_32 -pthread
+./server
 ```
 
 ---
 
-## 💻 Available Commands
+### 🔹 Step 2: Run Frontend
 
-| Command      | Description           |
-| ------------ | --------------------- |
-| `open <url>` | Open a webpage        |
-| `back`       | Go to previous page   |
-| `forward`    | Go to next page       |
-| `newtab`     | Open a new tab        |
-| `tabs`       | Show all tabs         |
-| `history`    | Show browsing history |
-| `exit`       | Exit browser          |
+* Open `Frontend/index.html` using Live Server (VS Code)
+  **OR**
+* Open directly in browser
 
 ---
 
-## 🔍 URL Type Detection
+### 🔹 Step 3: Use the Browser UI
 
-| Pattern                | Page Type | Output               |
-| ---------------------- | --------- | -------------------- |
-| `.html`, `.htm`        | HTMLPage  | Loading HTML content |
-| `.jpg`, `.png`, `.gif` | ImagePage | Displaying image     |
-| `.mp4`, `.mkv`, `.avi` | VideoPage | Streaming video      |
+* Open tabs
+* Navigate using address bar
+* Use back/forward
+* View history
+* Check weather widget
 
 ---
 
-## 🎮 Sample Execution
+## 🌦️ Weather Feature
+
+* Uses **Geolocation API** to detect user location
+* Fetches weather from **Open-Meteo API**
+* Converts weather codes to dynamic icons
+* Displays:
+
+  * Temperature 🌡️
+  * Location 📍
+  * Weather condition 🌦️
+
+---
+
+## 🔍 Sample Workflow
 
 ```
-=== Web Browser Simulation ===
-
-> open index.html
-[HTML PAGE] Loading: index.html
-
-> open photo.jpg
-[IMAGE PAGE] Displaying: photo.jpg
-
-> back
-Navigating back...
-
-> forward
-Navigating forward...
-
-> newtab
-Switched to Tab 2
+1. Open new tab
+2. Click shortcut (YouTube)
+3. Navigate to another page
+4. Use back/forward
+5. View history panel
+6. See real-time weather update
 ```
-
----
-
-## 🌐 Frontend Demo
-
-A simple UI version is available:
-
-📁 `frontend/index.html`
-
-* Simulates browser UI
-* Includes tabs, address bar, and navigation buttons
-* Uses same underlying logic conceptually
 
 ---
 
 ## ⚠️ Limitations
 
-* ❌ No real internet access
-* ❌ Static simulated content
-* ❌ Console-based (except frontend demo)
-
----
-
-## 🎓 Academic Context
-
-This project was developed as part of:
-
-**Course:** Object-Oriented Programming
-**Institute:** NIT Silchar
-**Batch:** 2024
-
----
-
-## 📜 License
-
-This project is intended for academic and educational purposes only.
+* ❌ Not a real browser (simulated rendering)
+* ❌ No actual internet page loading
+* ❌ Limited to predefined page types
+* ⚠️ Geolocation accuracy may vary
 
 ---
 
 ## ⭐ Future Improvements
 
-* Add real HTTP requests (using libraries like cURL)
-* GUI using Qt or web-based interface
+* Add real HTTP requests (cURL integration)
 * Bookmark system
 * Download manager simulation
-
----
-
-## 🙌 Acknowledgment
-
-Special thanks to faculty and peers for guidance and support throughout the project.
-
----
-# 🌐 Console-Based Web Browser Simulation (C++)
-
-A console-based C++ application that simulates the internal working of a web browser using Object-Oriented Programming (OOP) principles. Developed as part of the **OOP coursework at NIT Silchar (CSE Department)**.
-
----
-
-## 📌 Project Overview
-
-This project demonstrates how a real web browser operates internally — including tab management, page rendering, and navigation history — without using the internet.
-
-All content is simulated within the console environment.
-
-🎯 **Key Objective:**
-To apply core OOP concepts in a clean, modular, and scalable design.
-
----
-
-## 🚀 Key Features
-
-* 🗂️ Multi-tab browsing system
-* 🔄 Back and forward navigation using stacks
-* 🌐 Dynamic page type handling (HTML, Image, Video)
-* 🧠 Polymorphic rendering system
-* 🖥️ Console-based interactive interface
-* 🎨 Optional frontend simulation (HTML)
-
----
-
-## 👥 Team Contributions
-
-| Member   | Role              | Responsibilities                                 |
-| -------- | ----------------- | ------------------------------------------------ |
-| Person 1 | Browser System    | `Browser.h/cpp`, `main.cpp`, frontend simulation |
-| Person 2 | Navigation System | `Tab`, `History` (stack-based navigation)        |
-| Person 3 | Page System       | `WebPage` hierarchy (HTML, Image, Video)         |
-| Person 4 | Integration       | Makefile, README, report, demo                   |
-
----
-
-## 🏗️ System Architecture
-
-```
-Browser
-├── manages → Tab[]
-│   ├── contains → WebPage* (polymorphic)
-│   │   ├── HTMLPage
-│   │   ├── ImagePage
-│   │   └── VideoPage
-│   └── uses → History
-│       ├── backStack
-│       └── forwardStack
-```
-
----
-
-## 🧩 OOP Concepts Implemented
-
-| Concept           | Implementation                              |
-| ----------------- | ------------------------------------------- |
-| **Encapsulation** | Private data members with controlled access |
-| **Abstraction**   | User interacts via simple commands          |
-| **Inheritance**   | Derived classes from `WebPage`              |
-| **Polymorphism**  | Runtime binding using `render()`            |
-| **Composition**   | Browser → Tabs → WebPages + History         |
-
----
-
-## 📁 Project Structure
-
-```
-web-browser-simulation-cpp/
-├── src/
-│   ├── WebPage.h / .cpp
-│   ├── HTMLPage.h / .cpp
-│   ├── ImagePage.h / .cpp
-│   ├── VideoPage.h / .cpp
-│   ├── History.h / .cpp
-│   ├── Tab.h / .cpp
-│   ├── Browser.h / .cpp
-│   └── main.cpp
-├── frontend/
-│   └── index.html
-├── docs/
-│   └── ProjectReport.pdf
-├── Makefile
-└── README.md
-```
-
----
-
-## ⚙️ Compilation & Execution
-
-### 🔹 Using Makefile
-
-```bash
-make
-./browser
-```
-
-### 🔹 Manual Compilation
-
-```bash
-g++ -std=c++11 -o browser src/main.cpp src/Browser.cpp src/Tab.cpp src/History.cpp \
-src/WebPage.cpp src/HTMLPage.cpp src/ImagePage.cpp src/VideoPage.cpp
-
-./browser
-```
-
----
-
-## 💻 Available Commands
-
-| Command      | Description           |
-| ------------ | --------------------- |
-| `open <url>` | Open a webpage        |
-| `back`       | Go to previous page   |
-| `forward`    | Go to next page       |
-| `newtab`     | Open a new tab        |
-| `tabs`       | Show all tabs         |
-| `history`    | Show browsing history |
-| `exit`       | Exit browser          |
-
----
-
-## 🔍 URL Type Detection
-
-| Pattern                | Page Type | Output               |
-| ---------------------- | --------- | -------------------- |
-| `.html`, `.htm`        | HTMLPage  | Loading HTML content |
-| `.jpg`, `.png`, `.gif` | ImagePage | Displaying image     |
-| `.mp4`, `.mkv`, `.avi` | VideoPage | Streaming video      |
-
----
-
-## 🎮 Sample Execution
-
-```
-=== Web Browser Simulation ===
-
-> open index.html
-[HTML PAGE] Loading: index.html
-
-> open photo.jpg
-[IMAGE PAGE] Displaying: photo.jpg
-
-> back
-Navigating back...
-
-> forward
-Navigating forward...
-
-> newtab
-Switched to Tab 2
-```
-
----
-
-## 🌐 Frontend Demo
-
-A simple UI version is available:
-
-📁 `frontend/index.html`
-
-* Simulates browser UI
-* Includes tabs, address bar, and navigation buttons
-* Uses same underlying logic conceptually
-
----
-
-## ⚠️ Limitations
-
-* ❌ No real internet access
-* ❌ Static simulated content
-* ❌ Console-based (except frontend demo)
+* UI animations & transitions
+* Authentication system
+* Deploy as a web application
 
 ---
 
 ## 🎓 Academic Context
 
-This project was developed as part of:
-
-**Course:** Object-Oriented Programming
-**Institute:** NIT Silchar
-**Batch:** 2024
+* **Course:** Object-Oriented Programming
+* **Institute:** NIT Silchar
+* **Batch:** 2024
 
 ---
 
-## 📜 License
+## 👥 Team Members
 
-This project is intended for academic and educational purposes only.
+* **Abhijnyan Saikia**
+* **Anushya Rai**
+* **Alindo Sarker Duranto**
+* **Gaurav Gope**
 
----
-
-## ⭐ Future Improvements
-
-* Add real HTTP requests (using libraries like cURL)
-* GUI using Qt or web-based interface
-* Bookmark system
-* Download manager simulation
+NIT Silchar
 
 ---
 
-## 🙌 Acknowledgment
+## ⭐ If you like this project
 
-Special thanks to faculty and peers for guidance and support throughout the project.
-
----
+Give it a ⭐ on GitHub and share your feedback!
