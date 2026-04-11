@@ -243,7 +243,9 @@ async function navigate(url) {
 
         renderTabs();
         showPage(data);
-        updateUI(data);
+        backBtn.disabled    = false;
+        forwardBtn.disabled = !data.canGoForward;
+        addressBar.value    = data.url;
 
         console.log('[Navigate] C++ response:', data);
     } catch (err) {
@@ -265,22 +267,20 @@ async function goBack() {
 
         // If backend says cannot go back further
         if (data.error) {
+                tab.lastUrl      = tab.url;
+                tab.url          = '';
+                tab.title        = 'New Tab';
+                tab.canGoBack    = false;
+                tab.canGoForward = true;  // keep this true
 
-            tab.url          = '';
-            tab.title        = 'New Tab';
-            tab.canGoBack    = false;
-            tab.canGoForward = true;
+                renderTabs();
+                showNewTab();
 
-            renderTabs();
-            showNewTab();
-
-            addressBar.value    = '';
-
-            backBtn.disabled    = true;
-            forwardBtn.disabled = false;
-
-            return;
-        }
+                addressBar.value    = '';
+                backBtn.disabled    = true;
+                forwardBtn.disabled = false;  // keep enabled
+                return;
+            }
 
         // Get URL returned from backend
         tab.url = data.url || data.currentURL;
@@ -316,7 +316,7 @@ async function goBack() {
         showPage(data);
 
         // ⭐ Correct button logic
-        backBtn.disabled    = !data.canGoBack;
+        backBtn.disabled    = false; // can always go back after going back once
         forwardBtn.disabled = !data.canGoForward;
 
         addressBar.value = tab.url;
@@ -330,6 +330,21 @@ async function goForward() {
     const tab = tabs.find(t => t.id === activeTabId);
     if (!tab) return;
 
+    if (!tab.url && tab.lastUrl) {
+    tab.url          = tab.lastUrl;
+    tab.lastUrl      = '';
+    tab.title        = formatTabTitle(tab.url);
+    tab.canGoBack    = false;
+    tab.canGoForward = false;
+
+    renderTabs();
+    showPage({ type: tab.pageType || 'html', url: tab.url, body: tab.body || '' });
+    backBtn.disabled    = false;
+    forwardBtn.disabled = true;
+    addressBar.value    = tab.url;
+    return;
+}
+
     try {
         const res  = await fetch(`${SERVER}/forward?id=${activeTabId}`);
         const data = await res.json();
@@ -337,6 +352,9 @@ async function goForward() {
         if (data.error) {
             console.log('Cannot go forward:', data.error);
             return;
+        }
+        if (!data.url && data.currentURL) {
+            data.url = data.currentURL;
         }
 
         tab.url          = data.url || data.currentURL;
@@ -348,7 +366,10 @@ async function goForward() {
 
         renderTabs();
         showPage(data);
-        updateUI(data);
+        backBtn.disabled    = !data.canGoBack;
+        forwardBtn.disabled = !data.canGoForward;
+        addressBar.value    = tab.url;
+
     } catch (err) {
         console.error('Forward error:', err);
     }
@@ -399,7 +420,7 @@ async function doReload() {
 
 async function renderHistory() {
     try {
-        const res  = await fetch(`${SERVER}/history?id=${activeTabId}`);
+        const res = await fetch(`${SERVER}/history`);
         const data = await res.json();
 
         historyList.innerHTML = '';
@@ -416,9 +437,9 @@ async function renderHistory() {
             if (index === data.currentIndex) li.classList.add('history-current');
 
             // Make a readable label from the URL
-            let label = entry;
+            let label = entry.url;
             try {
-                const u = new URL(entry);
+                const u = new URL(entry.url);
                 if (u.hostname.includes('google') && u.searchParams.get('q')) {
                     label = 'Search: ' + u.searchParams.get('q');
                 } else {
@@ -427,18 +448,18 @@ async function renderHistory() {
                     label = label.charAt(0).toUpperCase() + label.slice(1);
                 }
             } catch {
-                label = entry; // fallback for non-standard URLs like photo.jpg
+                label = entry.url; // fallback for non-standard URLs like photo.jpg
             }
 
             // Show page type icon
             let icon = '🌐';
-            const lower = entry.toLowerCase();
+            const lower = entry.url.toLowerCase();
             if (/\.(jpg|jpeg|png|gif|webp)/.test(lower)) icon = '🖼️';
             else if (/\.(mp4|webm|avi|mov)/.test(lower)) icon = '▶️';
 
             li.innerHTML =
-                `<span>${icon} ${label}</span>
-                 <span class="history-time">${new Date().toLocaleTimeString()}</span>`;
+            `<span>${icon} ${label}</span>
+            <span class="history-time">${entry.time}</span>`;
 
             historyList.appendChild(li);
         });
@@ -451,7 +472,7 @@ async function renderHistory() {
 
 async function clearHistory() {
     try {
-        await fetch(`${SERVER}/clear-history?id=${activeTabId}`);
+        await fetch(`${SERVER}/clear-history`);
         renderHistory();
     } catch {}
 }

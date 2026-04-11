@@ -23,7 +23,7 @@ private:
     }
 
 public:
-    History() : current("home") {}
+    History() : current("") {}
 
    void push(const std::string& url) {
     if (!current.empty()) {

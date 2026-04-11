@@ -13,6 +13,8 @@
 #include <map>
 #include <string>
 #include <iostream>
+#include "GlobalHistory.h"
+GlobalHistory globalHistory;
 
 // One Tab object per browser tab (keyed by tab id)
 std::map<int, Tab*> tabs;
@@ -83,6 +85,7 @@ int main() {
         }
         std::cout << "[Server] Tab " << id << " navigating to: " << url << std::endl;
         std::string pageJSON   = tab->loadURL(url);
+        globalHistory.record(url, id);
         std::string statusJSON = tab->getStatus();
 
         // Merge page + status into one response
@@ -186,32 +189,20 @@ int main() {
 
     // ── Get history for a tab ─────────────────────────────────
 // GET /history?id=0
-    server.Get("/history", [](const httplib::Request& req,
-                                    httplib::Response& res) {
-        addCORS(res);
-        int id = std::stoi(req.get_param_value("id"));
-        Tab* tab = getTab(id);
-        if (!tab) {
-            res.set_content("{\"history\":[]}", "application/json");
-            return;
-        }
-        res.set_content(tab->getHistoryJSON(), "application/json");
-    });
+   server.Get("/history", [&](const httplib::Request& req,
+                                httplib::Response& res) {
+    addCORS(res);
+    res.set_content(globalHistory.toJSON(), "application/json");
+});
 
 // ── Clear history for a tab ───────────────────────────────
 // GET /clear-history?id=0
-    server.Get("/clear-history", [](const httplib::Request& req,
-                                        httplib::Response& res) {
-        addCORS(res);
-        int id = std::stoi(req.get_param_value("id"));
-        Tab* tab = getTab(id);
-        if (!tab) {
-            res.set_content("{\"error\":\"Tab not found\"}", "application/json");
-            return;
-        }
-        tab->clearHistory();
-        res.set_content("{\"success\":true}", "application/json");
-    });
+    server.Get("/clear-history", [&](const httplib::Request& req,
+                                    httplib::Response& res) {
+    addCORS(res);
+    globalHistory.clear();
+    res.set_content("{\"success\":true}", "application/json");
+});
 
     server.listen("localhost", 8080);
 

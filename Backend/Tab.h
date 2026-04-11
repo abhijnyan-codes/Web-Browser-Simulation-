@@ -96,7 +96,6 @@ public:
 
     void clearHistory() {
         history.clear();
-        history.push("home");
         delete currentPage;
         currentPage = nullptr;
         title = "New Tab";
