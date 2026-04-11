@@ -587,7 +587,61 @@ function updateClock() {
     document.getElementById('clockDate').textContent =
         `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]}`;
 }
+// ============================================================
+//  WEATHER
+// ============================================================
 
+function getLocationAndWeather() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(async (pos) => {
+            const lat = pos.coords.latitude;
+            const lon = pos.coords.longitude;
+
+            console.log("Location:", lat, lon);
+
+            getWeather(lat, lon);
+        }, () => {
+            console.log("Location permission denied");
+        });
+    }
+}
+function getWeatherIcon(code) {
+    if (code === 0) return "☀️";                 // clear
+    if (code <= 3) return "⛅";                  // partly cloudy
+    if (code <= 48) return "☁️";                // cloudy/fog
+    if (code <= 67) return "🌧️";                // rain
+    if (code <= 77) return "❄️";                // snow
+    if (code <= 99) return "⛈️";                // storm
+    return "🌤️";
+}
+async function getWeather(lat, lon) {
+    try {
+        const res = await fetch(
+            `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`
+        );
+
+        const data = await res.json();
+
+        document.getElementById("weatherTemp").textContent =
+            `${data.current_weather.temperature}°C`;
+            
+            document.getElementById("weatherIcon").textContent =
+            getWeatherIcon(data.current_weather.weathercode);
+
+        // 🔥 Get city name
+        const locRes = await fetch(
+            `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`
+        );
+
+        const locData = await locRes.json();
+
+        document.getElementById("weatherCity").textContent =
+            locData.city || locData.locality || "Unknown";
+
+    } catch (err) {
+        console.error("Weather error:", err);
+    }
+}
 
 // ============================================================
 //  QUOTES
@@ -651,5 +705,6 @@ document.getElementById('newQuoteBtn').addEventListener('click', updateQuote);
 createTab();
 renderShortcuts();
 updateClock();
+getLocationAndWeather();
 updateQuote();
 setInterval(updateClock, 1000);
