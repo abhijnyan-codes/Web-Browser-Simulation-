@@ -4,6 +4,18 @@
 // ============================================================
 
 const SERVER = "http://localhost:8080";
+// ✅ SAFE FETCH FIX
+async function safeFetch(url) {
+    const res = await fetch(url);
+    const text = await res.text();
+
+    try {
+        return JSON.parse(text);
+    } catch (e) {
+        console.error("Invalid JSON from server:", text);
+        throw new Error("Server returned invalid JSON");
+    }
+}
 
 // ── DOM References ──────────────────────────────────────────
 const tabsContainer   = document.getElementById('tabs');
@@ -57,6 +69,7 @@ function showNewTab() {
 
 // Called with the JSON response from C++ server
 function showPage(data) {
+    console.log("DATA RECEIVED:", data);
     centerLayout.style.display    = 'none';
     bottomDashboard.style.display = 'none';
     pageContent.style.display     = 'block';
@@ -70,31 +83,21 @@ function showPage(data) {
     let domain = hostname.replace('www.', '');
     document.getElementById('pageTitle').textContent = domain;
 
-    // Body content — comes from C++ render()
-    // type tells us what kind of page it is (html / image / video)
-    if (data.type === 'image') {
-        document.getElementById('pageDesc').innerHTML =
-            `<div style="
-                width:300px; height:200px;
-                background:#c8d8e8; border-radius:8px;
-                display:flex; align-items:center;
-                justify-content:center; color:#555;
-                font-size:14px; margin-top:16px;">
-                🖼️ Image: ${data.url}
-            </div>`;
-    } else if (data.type === 'video') {
-        document.getElementById('pageDesc').innerHTML =
-            `<div style="
-                width:400px; height:225px;
-                background:#1a1a2e; border-radius:8px;
-                display:flex; align-items:center;
-                justify-content:center; color:white;
-                font-size:14px; margin-top:16px;">
-                ▶ Video: ${data.url}
-            </div>`;
-    } else {
-        document.getElementById('pageDesc').textContent = data.body;
-    }
+   // Body content — comes from C++ render()
+
+if (data.type === 'image') {
+    document.getElementById('pageDesc').innerHTML =
+        `<img src="${data.url}" style="max-width:100%; border-radius:8px; margin-top:16px;">`;
+}
+else if (data.type === 'video') {
+    document.getElementById('pageDesc').innerHTML =
+        `<video controls style="max-width:100%; border-radius:8px; margin-top:16px;">
+            <source src="${data.url}" type="video/mp4">
+        </video>`;
+}
+else {
+    document.getElementById('pageDesc').innerHTML = data.body;
+}
 
     document.getElementById('pageTime').textContent =
         'Loaded at ' + new Date().toLocaleTimeString();
@@ -158,8 +161,7 @@ function renderTabs() {
 // Creates a new tab — asks C++ server for a tab id
 async function createTab() {
     try {
-        const res  = await fetch(`${SERVER}/new-tab`);
-        const data = await res.json();
+        const data = await safeFetch(`${SERVER}/new-tab`);
         const id   = data.tabId;
 
         tabs.push({ id: id, title: 'New Tab' });
@@ -223,10 +225,9 @@ async function navigate(url) {
     if (!tab) return;
 
     try {
-        const res  = await fetch(
-            `${SERVER}/navigate?id=${activeTabId}&url=${encodeURIComponent(url)}`
-        );
-        const data = await res.json();
+        const data = await safeFetch(
+    `${SERVER}/navigate?id=${activeTabId}&url=${encodeURIComponent(url)}`
+);
 
         if (data.error) {
             console.error('Server error:', data.error);
@@ -260,8 +261,7 @@ async function goBack() {
     if (!tab) return;
 
     try {
-        const res  = await fetch(`${SERVER}/back?id=${activeTabId}`);
-        const data = await res.json();
+        const data = await safeFetch(`${SERVER}/back?id=${activeTabId}`);
 
         // If backend says cannot go back further
         if (data.error) {
@@ -331,8 +331,7 @@ async function goForward() {
     if (!tab) return;
 
     try {
-        const res  = await fetch(`${SERVER}/forward?id=${activeTabId}`);
-        const data = await res.json();
+       const data = await safeFetch(`${SERVER}/forward?id=${activeTabId}`);
 
         if (data.error) {
             console.log('Cannot go forward:', data.error);
@@ -363,8 +362,7 @@ async function doReload() {
 
     try {
 
-        const res  = await fetch(`${SERVER}/reload?id=${activeTabId}`);
-        const data = await res.json();
+       const data = await safeFetch(`${SERVER}/reload?id=${activeTabId}`);
 
         if (data.error) {
             console.log("Reload error:", data.error);
@@ -399,8 +397,7 @@ async function doReload() {
 
 async function renderHistory() {
     try {
-        const res  = await fetch(`${SERVER}/history?id=${activeTabId}`);
-        const data = await res.json();
+        const data = await safeFetch(`${SERVER}/history?id=${activeTabId}`);
 
         historyList.innerHTML = '';
 
@@ -622,6 +619,71 @@ clearHistoryBtn.addEventListener('click', clearHistory);
 
 document.getElementById('newQuoteBtn').addEventListener('click', updateQuote);
 
+// ============================================================
+//  WEATHER + LOCATION FIX
+// ============================================================
+
+function updateWeather() {
+
+    console.log("Weather function running...");
+
+    if (!navigator.geolocation) {
+        console.log("Geolocation not supported");
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+
+        const lat = pos.coords.latitude;
+        const lon = pos.coords.longitude;
+
+        console.log("Lat:", lat, "Lon:", lon);
+
+        try {
+            const res = await fetch(
+                `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`
+            );
+            const data = await res.json();
+
+            console.log("Weather data:", data);
+
+            const temp = data.current_weather.temperature;
+
+            const tempEl = document.querySelector('#weatherTemp');
+            if (tempEl) {
+                tempEl.textContent = `${temp}°C`;
+            } else {
+                console.log("weatherTemp element NOT FOUND");
+            }
+
+            const geo = await fetch(
+                `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`
+            );
+            const geoData = await geo.json();
+
+            console.log("Geo data:", geoData);
+
+            const city =
+                geoData.address.city ||
+                geoData.address.town ||
+                geoData.address.village ||
+                "Unknown";
+
+            const cityEl = document.querySelector('#weatherCity');
+            if (cityEl) {
+                cityEl.textContent = city;
+            } else {
+                console.log("weatherCity element NOT FOUND");
+            }
+
+        } catch (err) {
+            console.error("Weather error:", err);
+        }
+
+    }, (err) => {
+        console.error("Location denied:", err);
+    });
+}
 
 // ============================================================
 //  INIT — runs on page load
@@ -631,4 +693,6 @@ createTab();
 renderShortcuts();
 updateClock();
 updateQuote();
+updateWeather();
 setInterval(updateClock, 1000);
+setInterval(updateWeather, 300000); // Update weather every 5 minutes
