@@ -357,14 +357,25 @@ body {
     white-space: nowrap;
 }
  
-/* ── Page Content ── */
+/* ── Page Content (hidden by default) ── */
 .page-content {
     display: none;
     flex: 1;
     background: #1a1a24;
     padding: 40px;
     overflow-y: auto;
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    height: 100%;
 }
+
+/* When JS adds .visible class — page becomes visible */
+.page-content.visible {
+    display: flex;
+    flex-direction: column;
+}
+
 .url-badge {
     display: inline-block;
     background: #2a2a35;
@@ -376,7 +387,7 @@ body {
 }
 .page-content h1 { font-size: 28px; font-weight: 300; margin-bottom: 12px; }
 .page-content p { color: #aaa; font-size: 14px; line-height: 1.6; }
- 
+
 /* ── Modal ── */
 .modal-overlay {
     display: none;
@@ -423,250 +434,300 @@ body {
 #modalCancel:hover { border-color: #666; color: white; }
 #modalSave { background: #a98ff7; border: none; color: white; }
 #modalSave:hover { background: #c0aaff; }
-/* History Panel */
 
-/* =========================
-   HISTORY PANEL
-========================= */
-
-/* =========================
-   HISTORY PANEL
-========================= */
-
+/* ── History Panel ── */
 .history-panel {
     position: absolute;
     top: 65px;
     right: 20px;
-
     width: 300px;
     max-height: 350px;
-
     background: #ffffff;
-
     border-radius: 12px;
-
-    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
-
+    box-shadow: 0 10px 28px rgba(0,0,0,0.18);
     padding: 8px 0;
-
     display: none;
-
     z-index: 999;
-
     overflow-y: auto;
-
-    font-family: system-ui, -apple-system,
-                 Segoe UI, Roboto,
-                 sans-serif;
-
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
     animation: historyFadeIn 0.15s ease;
 }
-
-
-/* =========================
-   TITLE
-========================= */
 
 .history-title {
     font-size: 13px;
     font-weight: 600;
-
     color: #666;
-
     padding: 10px 16px;
-
     border-bottom: 1px solid #eeeeee;
-
     letter-spacing: 0.3px;
 }
 
-
-/* =========================
-   LIST
-========================= */
-
 .history-list {
     list-style: none;
-
     margin: 0;
     padding: 0;
 }
 
-
-/* =========================
-   HISTORY ITEM
-========================= */
-
 .history-item {
-
     display: flex;
-
     justify-content: space-between;
-
     align-items: center;
-
     gap: 10px;
-
     padding: 10px 16px;
-
     font-size: 14px;
-
     color: #222;
-
     cursor: pointer;
-
-    transition:
-        background 0.18s ease,
-        color 0.18s ease;
-
+    transition: background 0.18s ease, color 0.18s ease;
 }
-
-
-/* Small dot before each item */
 
 .history-item::before {
-
     content: "";
-
     width: 6px;
     height: 6px;
-
     background: #9aa0a6;
-
     border-radius: 50%;
-
     flex-shrink: 0;
-
 }
 
-
-/* Hover effect */
-
-.history-item:hover {
-
-    background: #f5f5f5;
-
-}
-
-
-/* Current page styling */
+.history-item:hover { background: #f5f5f5; }
 
 .history-current {
-
     font-weight: 600;
-
     color: #000;
-
 }
 
-
-/* Darker dot for current page */
-
-.history-current::before {
-
-    background: #000;
-
-}
-
-
-/* =========================
-   TIMESTAMP
-========================= */
+.history-current::before { background: #000; }
 
 .history-time {
-
     font-size: 12px;
-
     color: #888;
-
     margin-left: 12px;
-
     white-space: nowrap;
-
 }
 
-
-/* =========================
-   SCROLLBAR
-========================= */
-
-.history-panel::-webkit-scrollbar {
-
-    width: 6px;
-
-}
-
-.history-panel::-webkit-scrollbar-thumb {
-
-    background: #d0d0d0;
-
-    border-radius: 4px;
-
-}
-
-.history-panel::-webkit-scrollbar-thumb:hover {
-
-    background: #b0b0b0;
-
-}
-
-
-/* =========================
-   FADE ANIMATION
-========================= */
+.history-panel::-webkit-scrollbar { width: 6px; }
+.history-panel::-webkit-scrollbar-thumb { background: #d0d0d0; border-radius: 4px; }
+.history-panel::-webkit-scrollbar-thumb:hover { background: #b0b0b0; }
 
 @keyframes historyFadeIn {
-
-    from {
-        opacity: 0;
-        transform: translateY(-6px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
-/* =========================
-   HISTORY HEADER
-========================= */
 
 .history-header {
-
     display: flex;
-
     justify-content: space-between;
-
     align-items: center;
-
     padding: 10px 16px;
-
     border-bottom: 1px solid #eeeeee;
-
 }
-
-
-/* Clear History Button */
 
 .clear-history-btn {
-
     background: none;
-
     border: none;
-
     font-size: 12px;
-
     color: #1976d2;
-
     cursor: pointer;
-
     font-weight: 500;
-
 }
 
-.clear-history-btn:hover {
+.clear-history-btn:hover { text-decoration: underline; }
 
-    text-decoration: underline;
+/* ── Page type placeholders ── */
+.page-image-placeholder {
+    width: 300px;
+    height: 200px;
+    background: #2a2a3a;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #aaa;
+    font-size: 14px;
+    margin-top: 16px;
+}
 
+.page-video-placeholder {
+    width: 400px;
+    height: 225px;
+    background: #111120;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 14px;
+    margin-top: 16px;
+}
+
+.page-body {
+    margin-top: 16px;
+}
+
+.page-body p {
+    color: #ccc;
+    font-size: 15px;
+    line-height: 1.8;
+}
+
+.page-simulated-note {
+    color: #555;
+    font-size: 12px;
+    margin-top: 12px;
+}
+
+/* ── Mockup Pages ── */
+
+/* Google */
+.mockup-google { font-family: arial, sans-serif; color: #e8eaed; }
+.mockup-google-header { display: flex; align-items: center; gap: 20px; padding-bottom: 20px; border-bottom: 1px solid #3c3c3c; margin-bottom: 20px; }
+.mockup-google-logo { font-size: 24px; font-weight: 700; color: #8ab4f8; }
+.mockup-google-searchbar { display: flex; align-items: center; gap: 10px; background: #303134; border-radius: 24px; padding: 10px 20px; flex: 1; max-width: 500px; color: #e8eaed; font-size: 14px; }
+.mockup-google-home { display: flex; flex-direction: column; align-items: center; gap: 24px; padding-top: 60px; }
+.mockup-google-big-logo { font-size: 72px; font-weight: 700; color: #8ab4f8; }
+.mockup-google-home-search { display: flex; align-items: center; gap: 10px; background: #303134; border-radius: 24px; padding: 14px 24px; width: 500px; color: #888; font-size: 15px; }
+.mockup-result-count { font-size: 13px; color: #9aa0a6; margin-bottom: 20px; }
+.mockup-result-item { margin-bottom: 28px; }
+.mockup-result-url { font-size: 12px; color: #9aa0a6; }
+.mockup-result-title { font-size: 18px; color: #8ab4f8; margin: 4px 0; cursor: pointer; }
+.mockup-result-title:hover { text-decoration: underline; }
+.mockup-result-desc { font-size: 14px; color: #bdc1c6; line-height: 1.6; }
+
+/* YouTube */
+.mockup-youtube { color: #e8eaed; }
+.mockup-youtube-header { display: flex; align-items: center; justify-content: space-between; padding-bottom: 20px; border-bottom: 1px solid #3c3c3c; margin-bottom: 24px; }
+.mockup-youtube-logo { font-size: 20px; font-weight: 700; color: #ff4444; }
+.mockup-youtube-search { display: flex; align-items: center; gap: 8px; background: #121212; border: 1px solid #3c3c3c; border-radius: 20px; padding: 8px 16px; color: #aaa; font-size: 13px; width: 280px; }
+.mockup-youtube-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.mockup-video-card { cursor: pointer; }
+.mockup-video-card:hover .mockup-video-thumb { opacity: 0.85; }
+.mockup-video-thumb { background: #272727; border-radius: 10px; height: 130px; display: flex; align-items: center; justify-content: center; font-size: 36px; margin-bottom: 10px; }
+.mockup-video-title { font-size: 13px; font-weight: 500; color: #e8eaed; line-height: 1.4; margin-bottom: 4px; }
+.mockup-video-channel { font-size: 12px; color: #aaa; margin-bottom: 2px; }
+.mockup-video-meta { font-size: 12px; color: #aaa; }
+
+/* GitHub */
+.mockup-github { color: #e6edf3; }
+.mockup-github-header { display: flex; align-items: center; justify-content: space-between; padding-bottom: 16px; border-bottom: 1px solid #30363d; margin-bottom: 24px; background: #161b22; padding: 14px 20px; border-radius: 8px; }
+.mockup-github-logo { font-size: 18px; font-weight: 700; }
+.mockup-github-search { display: flex; align-items: center; gap: 8px; background: #0d1117; border: 1px solid #30363d; border-radius: 6px; padding: 6px 14px; color: #aaa; font-size: 13px; width: 260px; }
+.mockup-github-body { display: flex; gap: 24px; margin-top: 4px; }
+.mockup-github-sidebar { width: 200px; flex-shrink: 0; }
+.mockup-github-avatar { width: 64px; height: 64px; background: #30363d; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; margin-bottom: 10px; }
+.mockup-github-username { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+.mockup-github-bio { font-size: 13px; color: #8b949e; }
+.mockup-github-repos { flex: 1; }
+.mockup-section-title { font-size: 14px; font-weight: 600; margin-bottom: 14px; color: #e6edf3; }
+.mockup-repo-card { border: 1px solid #30363d; border-radius: 8px; padding: 14px 16px; margin-bottom: 12px; background: #0d1117; }
+.mockup-repo-name { font-size: 14px; color: #58a6ff; font-weight: 500; margin-bottom: 6px; }
+.mockup-repo-desc { font-size: 13px; color: #8b949e; margin-bottom: 10px; }
+.mockup-repo-meta { display: flex; gap: 16px; font-size: 12px; color: #8b949e; }
+.mockup-repo-lang { display: flex; align-items: center; gap: 6px; }
+.mockup-lang-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+
+/* Claude */
+.mockup-claude { display: flex; flex-direction: column; align-items: center; padding-top: 40px; color: #e8e8e8; }
+.mockup-claude-header { margin-bottom: 32px; }
+.mockup-claude-logo { font-size: 22px; font-weight: 600; color: #c9b8f5; }
+.mockup-claude-greeting { font-size: 28px; font-weight: 300; margin-bottom: 8px; text-align: center; }
+.mockup-claude-sub { font-size: 15px; color: #888; margin-bottom: 32px; }
+.mockup-claude-inputbar { display: flex; align-items: center; justify-content: space-between; background: #2a2a3a; border: 1px solid #444; border-radius: 12px; padding: 14px 20px; width: 560px; font-size: 14px; color: #888; margin-bottom: 20px; }
+.mockup-claude-send { color: #a98ff7; font-size: 16px; }
+.mockup-claude-suggestions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.mockup-claude-chip { background: #2a2a3a; border: 1px solid #3a3a4a; border-radius: 20px; padding: 8px 16px; font-size: 13px; color: #ccc; cursor: pointer; }
+.mockup-claude-chip:hover { background: #333345; }
+
+/* ChatGPT */
+.mockup-chatgpt { display: flex; flex-direction: column; align-items: center; padding-top: 40px; color: #ececec; }
+.mockup-chatgpt-header { margin-bottom: 32px; }
+.mockup-chatgpt-logo { font-size: 22px; font-weight: 600; color: #19c37d; }
+.mockup-chatgpt-greeting { font-size: 26px; font-weight: 300; margin-bottom: 32px; }
+.mockup-chatgpt-inputbar { display: flex; align-items: center; background: #40414f; border-radius: 12px; padding: 14px 20px; width: 560px; font-size: 14px; color: #888; margin-bottom: 20px; border: 1px solid #555; }
+.mockup-chatgpt-suggestions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.mockup-chatgpt-chip { background: #40414f; border: 1px solid #555; border-radius: 8px; padding: 10px 16px; font-size: 13px; color: #ccc; cursor: pointer; }
+.mockup-chatgpt-chip:hover { background: #4a4b5a; }
+
+/* LeetCode */
+.mockup-leetcode { color: #eff1f6; }
+.mockup-leetcode-header { display: flex; align-items: center; justify-content: space-between; padding-bottom: 16px; border-bottom: 1px solid #3c3c3c; margin-bottom: 20px; }
+.mockup-leetcode-logo { font-size: 20px; font-weight: 700; color: #ffa116; }
+.mockup-leetcode-streak { font-size: 13px; color: #ffa116; }
+.mockup-leetcode-thead { display: grid; grid-template-columns: 40px 1fr 100px 100px; padding: 8px 12px; font-size: 12px; color: #888; border-bottom: 1px solid #3c3c3c; margin-bottom: 4px; }
+.mockup-leetcode-row { display: grid; grid-template-columns: 40px 1fr 100px 100px; padding: 10px 12px; font-size: 13px; border-radius: 6px; }
+.mockup-leetcode-row:hover { background: #2a2a3a; }
+.mockup-leetcode-status { color: #555; }
+.mockup-leetcode-title { color: #eff1f6; cursor: pointer; }
+.mockup-leetcode-title:hover { color: #ffa116; }
+.mockup-diff { font-size: 12px; font-weight: 500; }
+.mockup-diff-easy   { color: #00b8a3; }
+.mockup-diff-medium { color: #ffc01e; }
+.mockup-diff-hard   { color: #ff375f; }
+.mockup-leetcode-acc { color: #888; }
+
+/* Generic fallback */
+.mockup-generic { display: flex; flex-direction: column; align-items: center; padding-top: 80px; gap: 12px; }
+.mockup-generic-icon { font-size: 48px; }
+.mockup-generic-name { font-size: 28px; font-weight: 300; color: #e8eaed; }
+.mockup-generic-url { font-size: 13px; color: #888; }
+.mockup-generic-note { font-size: 12px; color: #555; margin-top: 8px; }
+
+/* ── Google Image Search Mockup ── */
+.mockup-image-tabs {
+    display: flex;
+    gap: 4px;
+    padding: 10px 0 0 0;
+    border-bottom: 1px solid #3c3c3c;
+    margin-bottom: 20px;
+}
+
+.mockup-image-tab {
+    padding: 8px 14px;
+    font-size: 13px;
+    color: #9aa0a6;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+}
+
+.mockup-image-tab:hover {
+    color: #e8eaed;
+}
+
+.mockup-image-tab-active {
+    color: #8ab4f8;
+    border-bottom: 3px solid #8ab4f8;
+}
+
+.mockup-image-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+}
+
+.mockup-image-cell {
+    cursor: pointer;
+}
+
+.mockup-image-cell:hover .mockup-image-thumb {
+    opacity: 0.85;
+    transform: scale(1.02);
+}
+
+.mockup-image-thumb {
+    background: #272727;
+    border-radius: 8px;
+    height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 52px;
+    margin-bottom: 6px;
+    transition: opacity 0.15s, transform 0.15s;
+}
+
+.mockup-image-caption {
+    font-size: 11px;
+    color: #9aa0a6;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }

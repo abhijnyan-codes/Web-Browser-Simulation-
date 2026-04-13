@@ -63,46 +63,398 @@ let editingIndex = null;
 function showNewTab() {
     centerLayout.style.display    = 'flex';
     bottomDashboard.style.display = 'flex';
-    pageContent.style.display     = 'none';
+
+    pageContent.classList.remove('visible');
+    pageContent.classList.add('hidden');
+
     searchInput.value = '';
 }
 
 // Called with the JSON response from C++ server
 function showPage(data) {
-    console.log("DATA RECEIVED:", data);
     centerLayout.style.display    = 'none';
     bottomDashboard.style.display = 'none';
-    pageContent.style.display     = 'block';
 
-    // URL badge
-    let hostname = data.url;
+    pageContent.classList.remove('hidden');
+    pageContent.classList.add('visible');
+
+    // Extract hostname
+    let hostname = data.url || '';
     try { hostname = new URL(data.url).hostname; } catch {}
-    document.getElementById('urlBadge').textContent = '🔒 ' + hostname;
-
-    // Page title — use domain name
     let domain = hostname.replace('www.', '');
-    document.getElementById('pageTitle').textContent = domain;
+    let siteName = domain.split('.')[0].toLowerCase();
 
-   // Body content — comes from C++ render()
-
-if (data.type === 'image') {
-    document.getElementById('pageDesc').innerHTML =
-        `<img src="${data.url}" style="max-width:100%; border-radius:8px; margin-top:16px;">`;
-}
-else if (data.type === 'video') {
-    document.getElementById('pageDesc').innerHTML =
-        `<video controls style="max-width:100%; border-radius:8px; margin-top:16px;">
-            <source src="${data.url}" type="video/mp4">
-        </video>`;
-}
-else {
-    document.getElementById('pageDesc').innerHTML = data.body;
-}
-
+    document.getElementById('urlBadge').textContent = '🔒 ' + hostname;
+    document.getElementById('pageTitle').textContent = '';
     document.getElementById('pageTime').textContent =
         'Loaded at ' + new Date().toLocaleTimeString();
+
+    // Route to the right mockup
+    if (data.type === 'image') {
+        document.getElementById('pageDesc').innerHTML = renderImagePage(data.url);
+
+    } else if (data.type === 'video') {
+        document.getElementById('pageDesc').innerHTML = renderVideoPage(data.url);
+
+    } else if (siteName.includes('google')) {
+        document.getElementById('pageDesc').innerHTML = renderGoogle(data.url);
+
+    } else if (siteName.includes('youtube')) {
+        document.getElementById('pageDesc').innerHTML = renderYoutube();
+
+    } else if (siteName.includes('github')) {
+        document.getElementById('pageDesc').innerHTML = renderGithub();
+
+    } else if (siteName.includes('claude')) {
+        document.getElementById('pageDesc').innerHTML = renderClaude();
+
+    } else if (siteName.includes('chatgpt') || siteName.includes('openai')) {
+        document.getElementById('pageDesc').innerHTML = renderChatGPT();
+
+    } else if (siteName.includes('leetcode')) {
+        document.getElementById('pageDesc').innerHTML = renderLeetcode();
+
+    } else {
+        document.getElementById('pageDesc').innerHTML = renderGeneric(domain, data.url);
+    }
 }
 
+// ============================================================
+//  PAGE MOCKUP RENDERERS
+//  Each returns an HTML string for a simulated page
+// ============================================================
+
+function renderGoogle(url) {
+    let query = '';
+    try {
+        const u = new URL(url);
+        query = u.searchParams.get('q') || '';
+    } catch {}
+
+    // ── Image search keywords ──────────────────────────────
+    const imageKeywords = {
+        cat: {
+            label: 'cat',
+            emojis: ['🐱','😺','🐈','😸','🐾','😻','🐱','😹','🐈‍⬛','😼','🐾','😺','🐱','🐈','😸'],
+            captions: [
+                'Happy cat Images – Freepik',
+                'Cute Baby Cat Stock Photos – Vecteezy',
+                '500+ Beautiful Cat Pictures [HD] – Unsplash',
+                '200+ Cat Pictures – Unsplash',
+                'Cat Stock Photos – Vecteezy',
+                'Tabby cat – Wikipedia',
+                '20,000+ Free Cat Images – Pixabay',
+                'Kitten Photos – Pexels',
+                'Cute Cat Wallpapers – WallpaperCave',
+                'Cat Breeds Guide – PetMD',
+                'Orange Cat Images – Shutterstock',
+                'Black Cat Photos – iStock',
+            ]
+        },
+        dog: {
+            label: 'dog',
+            emojis: ['🐶','🐕','🦮','🐩','🐾','🐕‍🦺','🐶','🦴','🐕','🐾','🐩','🐶'],
+            captions: [
+                'Cute Dog Photos – Unsplash',
+                'Dog Breed Stock Images – Shutterstock',
+                '500+ Puppy Pictures [HD] – Pexels',
+                'Golden Retriever Photos – Freepik',
+                'Dog Images Free Download – Pixabay',
+                'Labrador Pictures – iStock',
+                'Funny Dog Memes – Reddit',
+                'Puppy Wallpapers – WallpaperCave',
+                'Dog Breeds A-Z – AKC',
+                'Husky Photos – Vecteezy',
+                'German Shepherd Images – Getty',
+                'Bulldog Stock Photos – Adobe Stock',
+            ]
+        },
+        ocean: {
+            label: 'ocean',
+            emojis: ['🌊','🐋','🐬','🐠','🦈','🐙','🌊','🐚','🦀','🐡','🪸','🐳'],
+            captions: [
+                'Ocean Waves Photos – Unsplash',
+                'Deep Sea Images [HD] – Pexels',
+                'Beautiful Ocean Pictures – Shutterstock',
+                'Underwater Photography – Getty',
+                'Ocean Sunset Photos – Freepik',
+                'Sea Animals Stock Images – iStock',
+                'Coral Reef Photos – National Geographic',
+                'Blue Ocean Wallpapers – WallpaperCave',
+                'Ocean Surface Aerial – Adobe Stock',
+                'Tropical Sea Photos – Vecteezy',
+                'Stormy Ocean Images – Pixabay',
+                'Ocean Floor Pictures – Smithsonian',
+            ]
+        }
+    };
+
+    // Check if query matches any image keyword
+    const queryLower = query.toLowerCase();
+    let matchedTheme = null;
+    for (const [keyword, theme] of Object.entries(imageKeywords)) {
+        if (queryLower.includes(keyword)) {
+            matchedTheme = theme;
+            break;
+        }
+    }
+
+    // ── Render image search page ───────────────────────────
+    if (matchedTheme) {
+        return `
+            <div class="mockup-google">
+                <div class="mockup-google-header">
+                    <span class="mockup-google-logo">Google</span>
+                    <div class="mockup-google-searchbar">
+                        <span class="mockup-search-icon">🔍</span>
+                        <span class="mockup-search-text">${query}</span>
+                    </div>
+                </div>
+                <div class="mockup-image-tabs">
+                    <span class="mockup-image-tab">AI Mode</span>
+                    <span class="mockup-image-tab">All</span>
+                    <span class="mockup-image-tab mockup-image-tab-active">Images</span>
+                    <span class="mockup-image-tab">Shopping</span>
+                    <span class="mockup-image-tab">Videos</span>
+                    <span class="mockup-image-tab">Forums</span>
+                </div>
+                <div class="mockup-image-grid">
+                    ${matchedTheme.emojis.map((emoji, i) => `
+                        <div class="mockup-image-cell">
+                            <div class="mockup-image-thumb">${emoji}</div>
+                            <div class="mockup-image-caption">${matchedTheme.captions[i] || ''}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>`;
+    }
+
+    // ── Normal search results ──────────────────────────────
+    const results = query ? [
+        { title: query + ' - Wikipedia',       desc: 'From Wikipedia, the free encyclopedia. ' + query + ' is a widely known topic with many references.' },
+        { title: 'Everything about ' + query,  desc: 'A comprehensive guide covering all aspects of ' + query + '. Updated regularly with latest information.' },
+        { title: query + ' | Official Site',    desc: 'The official resource for ' + query + '. Find documentation, guides, and community support.' },
+        { title: query + ' explained simply',   desc: 'Learn about ' + query + ' in simple terms. Beginner friendly with examples and diagrams.' },
+        { title: 'Latest news on ' + query,     desc: 'Stay up to date with the latest developments and news related to ' + query + '.' },
+    ] : [];
+
+    return `
+        <div class="mockup-google">
+            <div class="mockup-google-header">
+                <span class="mockup-google-logo">Google</span>
+                <div class="mockup-google-searchbar">
+                    <span class="mockup-search-icon">🔍</span>
+                    <span class="mockup-search-text">${query || 'Search Google...'}</span>
+                </div>
+            </div>
+            ${query ? `
+            <div class="mockup-google-results">
+                <p class="mockup-result-count">About 4,32,00,000 results (0.48 seconds)</p>
+                ${results.map(r => `
+                    <div class="mockup-result-item">
+                        <span class="mockup-result-url">https://www.${r.title.toLowerCase().replace(/ /g,'-').substring(0,20)}.com</span>
+                        <div class="mockup-result-title">${r.title}</div>
+                        <div class="mockup-result-desc">${r.desc}</div>
+                    </div>
+                `).join('')}
+            </div>
+            ` : `
+            <div class="mockup-google-home">
+                <div class="mockup-google-big-logo">Google</div>
+                <div class="mockup-google-home-search">
+                    <span>🔍</span>
+                    <span style="color:#888">Search Google or type a URL</span>
+                </div>
+            </div>
+            `}
+        </div>`;
+}
+function renderYoutube() {
+    const videos = [
+        { title: 'How to Build a Web Browser in C++',     channel: 'CodeWithMe',      views: '1.2M views',  time: '2 days ago',    thumb: '🎬' },
+        { title: 'OOP Concepts Explained Simply',          channel: 'ProgrammingHub',  views: '890K views',  time: '1 week ago',    thumb: '💻' },
+        { title: 'Data Structures Full Course 2024',       channel: 'TechAcademy',     views: '3.4M views',  time: '3 months ago',  thumb: '📚' },
+        { title: 'Building REST APIs from Scratch',        channel: 'DevMaster',       views: '560K views',  time: '5 days ago',    thumb: '🔧' },
+        { title: 'Linux Terminal for Beginners',           channel: 'LinuxWorld',      views: '2.1M views',  time: '2 weeks ago',   thumb: '🖥️' },
+        { title: 'C++ Full Course — Zero to Hero',         channel: 'CppPro',          views: '4.7M views',  time: '6 months ago',  thumb: '⚡' },
+    ];
+
+    return `
+        <div class="mockup-youtube">
+            <div class="mockup-youtube-header">
+                <span class="mockup-youtube-logo">▶ YouTube</span>
+                <div class="mockup-youtube-search">
+                    <span>🔍</span>
+                    <span style="color:#aaa">Search</span>
+                </div>
+            </div>
+            <div class="mockup-youtube-grid">
+                ${videos.map(v => `
+                    <div class="mockup-video-card">
+                        <div class="mockup-video-thumb">${v.thumb}</div>
+                        <div class="mockup-video-info">
+                            <div class="mockup-video-title">${v.title}</div>
+                            <div class="mockup-video-channel">${v.channel}</div>
+                            <div class="mockup-video-meta">${v.views} • ${v.time}</div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>`;
+}
+
+function renderGithub() {
+    const repos = [
+        { name: 'browser-simulation',  lang: 'C++',        stars: '1.2k',  desc: 'A console and web based browser simulation using OOP' },
+        { name: 'data-structures',     lang: 'C++',        stars: '3.4k',  desc: 'Implementation of all major data structures in C++' },
+        { name: 'web-portfolio',       lang: 'JavaScript', stars: '234',   desc: 'Personal portfolio website built with HTML CSS JS' },
+        { name: 'algo-visualizer',     lang: 'Python',     stars: '890',   desc: 'Algorithm visualization tool for learning purposes' },
+    ];
+
+    const langColors = { 'C++': '#f34b7d', 'JavaScript': '#f1e05a', 'Python': '#3572A5' };
+
+    return `
+        <div class="mockup-github">
+            <div class="mockup-github-header">
+                <span class="mockup-github-logo">🐙 GitHub</span>
+                <div class="mockup-github-search">
+                    <span>🔍</span>
+                    <span style="color:#aaa">Search or jump to...</span>
+                </div>
+            </div>
+            <div class="mockup-github-body">
+                <div class="mockup-github-sidebar">
+                    <div class="mockup-github-profile">
+                        <div class="mockup-github-avatar">👤</div>
+                        <div class="mockup-github-username">student-dev</div>
+                        <div class="mockup-github-bio">CSE Student @ NIT Silchar</div>
+                    </div>
+                </div>
+                <div class="mockup-github-repos">
+                    <h3 class="mockup-section-title">Repositories</h3>
+                    ${repos.map(r => `
+                        <div class="mockup-repo-card">
+                            <div class="mockup-repo-name">🔗 ${r.name}</div>
+                            <div class="mockup-repo-desc">${r.desc}</div>
+                            <div class="mockup-repo-meta">
+                                <span class="mockup-repo-lang">
+                                    <span class="mockup-lang-dot" style="background:${langColors[r.lang]}"></span>
+                                    ${r.lang}
+                                </span>
+                                <span>⭐ ${r.stars}</span>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        </div>`;
+}
+
+function renderClaude() {
+    return `
+        <div class="mockup-claude">
+            <div class="mockup-claude-header">
+                <span class="mockup-claude-logo">✦ Claude</span>
+            </div>
+            <div class="mockup-claude-body">
+                <div class="mockup-claude-greeting">Good afternoon.</div>
+                <div class="mockup-claude-sub">How can I help you today?</div>
+                <div class="mockup-claude-inputbar">
+                    <span style="color:#888">Reply to Claude...</span>
+                    <span class="mockup-claude-send">➤</span>
+                </div>
+                <div class="mockup-claude-suggestions">
+                    <div class="mockup-claude-chip">✍️ Help me write</div>
+                    <div class="mockup-claude-chip">💻 Code something</div>
+                    <div class="mockup-claude-chip">📊 Analyze data</div>
+                    <div class="mockup-claude-chip">🧠 Explain a concept</div>
+                </div>
+            </div>
+        </div>`;
+}
+
+function renderChatGPT() {
+    return `
+        <div class="mockup-chatgpt">
+            <div class="mockup-chatgpt-header">
+                <span class="mockup-chatgpt-logo">🤖 ChatGPT</span>
+            </div>
+            <div class="mockup-chatgpt-body">
+                <div class="mockup-chatgpt-greeting">How can I help you today?</div>
+                <div class="mockup-chatgpt-inputbar">
+                    <span style="color:#888">Message ChatGPT...</span>
+                </div>
+                <div class="mockup-chatgpt-suggestions">
+                    <div class="mockup-chatgpt-chip">📝 Summarize text</div>
+                    <div class="mockup-chatgpt-chip">💡 Brainstorm ideas</div>
+                    <div class="mockup-chatgpt-chip">🔍 Research a topic</div>
+                    <div class="mockup-chatgpt-chip">🐛 Debug my code</div>
+                </div>
+            </div>
+        </div>`;
+}
+
+function renderLeetcode() {
+    const problems = [
+        { id: 1,    title: 'Two Sum',                    diff: 'Easy',   diff_class: 'easy',   acceptance: '52.3%' },
+        { id: 2,    title: 'Add Two Numbers',            diff: 'Medium', diff_class: 'medium', acceptance: '41.7%' },
+        { id: 3,    title: 'Longest Substring',          diff: 'Medium', diff_class: 'medium', acceptance: '34.1%' },
+        { id: 4,    title: 'Median of Two Arrays',       diff: 'Hard',   diff_class: 'hard',   acceptance: '38.9%' },
+        { id: 5,    title: 'Longest Palindrome',         diff: 'Medium', diff_class: 'medium', acceptance: '32.8%' },
+        { id: 20,   title: 'Valid Parentheses',          diff: 'Easy',   diff_class: 'easy',   acceptance: '40.2%' },
+        { id: 21,   title: 'Merge Two Sorted Lists',     diff: 'Easy',   diff_class: 'easy',   acceptance: '63.5%' },
+        { id: 206,  title: 'Reverse Linked List',        diff: 'Easy',   diff_class: 'easy',   acceptance: '75.1%' },
+    ];
+
+    return `
+        <div class="mockup-leetcode">
+            <div class="mockup-leetcode-header">
+                <span class="mockup-leetcode-logo">💻 LeetCode</span>
+                <span class="mockup-leetcode-streak">🔥 7 day streak</span>
+            </div>
+            <div class="mockup-leetcode-table">
+                <div class="mockup-leetcode-thead">
+                    <span>Status</span>
+                    <span>Title</span>
+                    <span>Difficulty</span>
+                    <span>Acceptance</span>
+                </div>
+                ${problems.map(p => `
+                    <div class="mockup-leetcode-row">
+                        <span class="mockup-leetcode-status">○</span>
+                        <span class="mockup-leetcode-title">${p.id}. ${p.title}</span>
+                        <span class="mockup-diff mockup-diff-${p.diff_class}">${p.diff}</span>
+                        <span class="mockup-leetcode-acc">${p.acceptance}</span>
+                    </div>
+                `).join('')}
+            </div>
+        </div>`;
+}
+
+function renderImagePage(url) {
+    return `
+        <div class="mockup-image-page">
+            <div class="page-image-placeholder">🖼️ Image: ${url}</div>
+        </div>`;
+}
+
+function renderVideoPage(url) {
+    return `
+        <div class="mockup-video-page">
+            <div class="page-video-placeholder">▶ Video: ${url}</div>
+        </div>`;
+}
+
+function renderGeneric(domain, url) {
+    const name = domain.charAt(0).toUpperCase() + domain.slice(1);
+    return `
+        <div class="mockup-generic">
+            <div class="mockup-generic-icon">🌐</div>
+            <div class="mockup-generic-name">${name}</div>
+            <div class="mockup-generic-url">${url}</div>
+            <div class="mockup-generic-note">Simulated page — no real internet connection</div>
+        </div>`;
+}
 
 // ============================================================
 //  UPDATE NAV BUTTONS + ADDRESS BAR
@@ -219,39 +571,64 @@ async function closeTab(id) {
 // Navigate to a URL — core function, calls C++ server
 async function navigate(url) {
     if (!url) return;
-    if (!url.startsWith('http')) url = 'https://' + url;
+
+    // Known site names that should go directly to their website
+    const knownSites = [
+        'google', 'youtube', 'github', 'claude', 'chatgpt',
+        'leetcode', 'facebook', 'instagram', 'twitter', 'reddit',
+        'netflix', 'amazon', 'wikipedia', 'stackoverflow', 'hackerrank',
+        'linkedin', 'openai', 'hackernews'
+    ];
+
+    const trimmed = url.trim().toLowerCase();
+
+    // Check if it's a known site name
+    const isKnownSite = knownSites.some(site => trimmed === site);
+
+    // Check if it looks like a URL (has a dot like google.com)
+    const looksLikeURL =
+        url.startsWith('http://') ||
+        url.startsWith('https://') ||
+        /^[a-zA-Z0-9-]+\.[a-zA-Z]{2,}/.test(url);
+
+    if (isKnownSite) {
+        // Go directly to the site
+        url = 'https://' + trimmed + '.com';
+    } else if (!looksLikeURL) {
+        // Treat as Google search
+        url = 'https://google.com/search?q=' + encodeURIComponent(url);
+    } else if (!url.startsWith('http')) {
+        url = 'https://' + url;
+    }
 
     const tab = tabs.find(t => t.id === activeTabId);
     if (!tab) return;
 
     try {
         const data = await safeFetch(
-    `${SERVER}/navigate?id=${activeTabId}&url=${encodeURIComponent(url)}`
-);
+            `${SERVER}/navigate?id=${activeTabId}&url=${encodeURIComponent(url)}`
+        );
 
         if (data.error) {
             console.error('Server error:', data.error);
             return;
         }
 
-        // Save state in tab object for when user switches back
-        tab.url         = data.url;
-        tab.title       = formatTabTitle(data.url);
-        tab.pageType    = data.type;
-        tab.body        = data.body;
-        tab.canGoBack   = data.canGoBack;
-        tab.canGoForward= data.canGoForward;
+        tab.url          = data.url;
+        tab.title        = formatTabTitle(data.url);
+        tab.pageType     = data.type;
+        tab.body         = data.body;
+        tab.canGoBack    = data.canGoBack;
+        tab.canGoForward = data.canGoForward;
 
         renderTabs();
         showPage(data);
         updateUI(data);
 
-        console.log('[Navigate] C++ response:', data);
     } catch (err) {
         alert('Cannot connect to C++ server.\nMake sure server.exe is running.\n\n' + err);
     }
 }
-
 
 // ============================================================
 //  BACK / FORWARD / RELOAD — all call C++ server
@@ -331,46 +708,29 @@ async function goForward() {
     if (!tab) return;
 
     try {
-       const data = await safeFetch(`${SERVER}/forward?id=${activeTabId}`);
+        const data = await safeFetch(`${SERVER}/forward?id=${activeTabId}`);
 
         if (data.error) {
             console.log('Cannot go forward:', data.error);
             return;
         }
 
-        tab.url          = data.url || data.currentURL;
-        tab.title        = formatTabTitle(tab.url);
-        tab.pageType     = data.type;
-        tab.body         = data.body;
-        tab.canGoBack    = data.canGoBack;
-        tab.canGoForward = data.canGoForward;
+        tab.url = data.url || data.currentURL;
 
-        renderTabs();
-        showPage(data);
-        updateUI(data);
-    } catch (err) {
-        console.error('Forward error:', err);
-    }
-}
-
-async function doReload() {
-
-    const tab = tabs.find(t => t.id === activeTabId);
-
-    // Nothing to reload if no page
-    if (!tab || !tab.url) return;
-
-    try {
-
-       const data = await safeFetch(`${SERVER}/reload?id=${activeTabId}`);
-
-        if (data.error) {
-            console.log("Reload error:", data.error);
+        // If forward takes us to "home"
+        if (tab.url === 'home' || tab.url === '') {
+            tab.url          = '';
+            tab.title        = 'New Tab';
+            tab.canGoBack    = data.canGoBack;
+            tab.canGoForward = false;
+            renderTabs();
+            showNewTab();
+            addressBar.value    = '';
+            backBtn.disabled    = !data.canGoBack;
+            forwardBtn.disabled = true;
             return;
         }
 
-        // Update tab state from server
-        tab.url          = data.url || tab.url;
         tab.title        = formatTabTitle(tab.url);
         tab.pageType     = data.type;
         tab.body         = data.body;
@@ -379,15 +739,12 @@ async function doReload() {
 
         renderTabs();
         showPage(data);
-
-        // ⭐ CRITICAL — keep correct button state
         backBtn.disabled    = !data.canGoBack;
         forwardBtn.disabled = !data.canGoForward;
-
-        addressBar.value = tab.url;
+        addressBar.value    = tab.url;
 
     } catch (err) {
-        console.error("Reload failed:", err);
+        console.error('Forward error:', err);
     }
 }
 
@@ -595,9 +952,35 @@ addressBar.addEventListener('keydown', e => {
 });
 
 searchInput.addEventListener('keydown', e => {
-    if (e.key === 'Enter') {
-        const q = searchInput.value.trim();
-        if (q) navigate('https://google.com/search?q=' + encodeURIComponent(q));
+    if (e.key !== 'Enter') return;
+
+    const q = searchInput.value.trim();
+    if (!q) return;
+
+    // Check if it's a known site name
+    const knownSites = [
+        'google', 'youtube', 'github', 'claude', 'chatgpt',
+        'leetcode', 'facebook', 'instagram', 'twitter', 'reddit',
+        'netflix', 'amazon', 'wikipedia', 'stackoverflow', 'hackerrank',
+        'linkedin', 'openai', 'hackernews'
+    ];
+
+    const specialDomains = {
+        'claude':     'https://claude.ai',
+        'hackernews': 'https://news.ycombinator.com',
+        'chatgpt':    'https://chatgpt.com',
+    };
+
+    const lower = q.toLowerCase();
+    const isKnownSite = knownSites.some(site => lower === site);
+
+    if (isKnownSite) {
+        // Go directly to the site
+        const url = specialDomains[lower] || 'https://' + lower + '.com';
+        navigate(url);
+    } else {
+        // Treat as Google search
+        navigate('https://google.com/search?q=' + encodeURIComponent(q));
     }
 });
 
