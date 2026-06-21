@@ -200,7 +200,7 @@ int main() {
 
     std::cout << "Server running at http://localhost:8080" << std::endl;
 
-    server.listen("localhost", 8080);
+    server.listen("0.0.0.0", 8080);
 
     for (auto& pair : tabs) delete pair.second;
 
