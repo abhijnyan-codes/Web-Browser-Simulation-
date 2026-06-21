@@ -198,7 +198,7 @@ int main() {
         res.set_content("", "text/plain");
     });
 
-    std::cout << "Server running at http://localhost:8080\n";
+    std::cout << "Server running at http://localhost:8080" << std::endl;
 
     server.listen("localhost", 8080);
 
