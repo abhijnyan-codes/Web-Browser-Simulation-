@@ -3,7 +3,7 @@
 //  Backend must be running at http://localhost:8080
 // ============================================================
 
-const SERVER = "http://localhost:8080";
+const SERVER = "https://web-browser-simulation.onrender.com";
 // ✅ SAFE FETCH FIX
 async function safeFetch(url) {
     const res = await fetch(url);
